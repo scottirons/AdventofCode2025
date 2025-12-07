@@ -27,3 +27,8 @@ while queue:
         next_row += 1
 
 print(f"Part 1: {len(a_splits)}")
+
+# part b
+# memo should be a dict instead of a set where I keep track of the running total of paths that led to the point.
+# so if coords in memo, increment amount. then carry on that amount to the next split and increment/set the memos of the
+# L/R points to the carried on value
