@@ -1,5 +1,8 @@
+from collections import defaultdict
+from functools import cache
+
 source = "day11.txt"
-source = "sample.txt"
+#source = "sample.txt"
 
 with open(source, 'r') as f:
     data = f.read().split('\n')
@@ -11,18 +14,24 @@ for line in data:
     source, destinations = line.split(": ")
     connections[source] = list(destinations.split(' '))
 
-for start, dests in connections.items():
-    for dest in dests:
-        if dest in reverse_connections:
-            reverse_connections[dest].append(start)
-        else:
-            reverse_connections[dest] = [start]
+reaches_end = set()
+paths = defaultdict(int)
 
-# something something actual backtracking this time.
-# ok but could I start from outs and just go backwards until I either reach a cycle, reach the end of nothing, or
-# reach a 'you'? Yes this is definitely better because it's tracing a single path and not checking options.
-# ok in that case I need to still need to backtrack, so wait does this save me any time at all? there's no guarantee
-# that a particular path leads from out to start. I'll do both and see what's faster :P
+@cache
+def dfs(curr_loc, start, target):
 
-# It probably just makes more sense to do normal backtracking, then... No guarantees there will even be a path to each
-# potential out, at least that seems to be the case in the sample input (they do sometimes converge on aaa, though. hmm)
+    if curr_loc == target:
+        return 1
+    elif curr_loc not in connections:
+        return 0
+    return sum(dfs(loc, start, target) for loc in connections[curr_loc])
+
+num_paths = dfs('you', 'you', 'out')
+
+print(f'Part 1: {num_paths}')
+
+# find all paths from svr to fft, fft to dac, dac to out, svr to dac, dac to fft, fft to out
+svr_dac_fft_out = dfs('svr', 'svr', 'fft') * dfs('fft', 'fft', 'dac') * dfs('dac', 'dac', 'out')
+svr_fft_dac_out = dfs('svr', 'svr', 'dac') * dfs('dac', 'dac', 'fft') * dfs('fft', 'fft', 'out')
+
+print("Part 2:", svr_dac_fft_out + svr_fft_dac_out)
