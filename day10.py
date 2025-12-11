@@ -8,7 +8,7 @@ with open(source, 'r') as f:
     data = f.read().split('\n')
 
 # part 1
-# Backtracking search should do the trick, and it's not going to be a huge sample size since we'll use each
+# recursive search should do the trick, and it's not going to be a huge sample size since we'll use each
 # button at most once (if we press it twice, for example, it'll be the same as not pressing it at all).
 
 targets: list[list[int]] = []
@@ -45,7 +45,7 @@ def update_state(curr_state, curr_move):
         copied_state[toggle] = not curr_state[toggle]
     return copied_state
 
-def backtrack(curr_state: list[bool], curr_size: int, curr_i: int, curr_target_i: int):
+def search(curr_state: list[bool], curr_size: int, curr_i: int, curr_target_i: int):
     if not curr_state:
         curr_state = [False for _ in targets[curr_target_i]]
 
@@ -59,8 +59,8 @@ def backtrack(curr_state: list[bool], curr_size: int, curr_i: int, curr_target_i
 
     updated_state = update_state(copied_state, options[curr_target_i][curr_i])
 
-    return min(backtrack(copied_state, curr_size, curr_i + 1, curr_target_i),
-               backtrack(updated_state, curr_size + 1, curr_i + 1, curr_target_i))
+    return min(search(copied_state, curr_size, curr_i + 1, curr_target_i),
+               search(updated_state, curr_size + 1, curr_i + 1, curr_target_i))
 
 total = 0
 
@@ -69,8 +69,8 @@ for state_index, target_state in enumerate(targets):
     include_first_state = update_state(empty_state, options[state_index][0])
 
     total += min(
-        backtrack(empty_state, 0, 1, state_index),
-        backtrack(include_first_state, 1, 1, state_index)
+        search(empty_state, 0, 1, state_index),
+        search(include_first_state, 1, 1, state_index)
     )
 
 print(f"Part 1: {total}")
